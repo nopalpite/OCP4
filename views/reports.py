@@ -38,10 +38,12 @@ class ReportsView:
     def matches_report(self, matches_items):
         rows = ['Match',
                 'Joueur 1',
+                'Couleur',
                 'Score ',
                 'Elo',
                 'VS',
                 'Joueur 2',
+                'Couleur',
                 'Score',
                 'Elo']
         self.report(rows, matches_items)

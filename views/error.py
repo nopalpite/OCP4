@@ -7,5 +7,9 @@ class ErrorView:
             print("Veuillez faire un choix valide \n")
         elif error == 2:
             print("ID tournoi invalide\n")
+        elif error == 3:
+            print("ID joueur invalide\n")
+        elif error == 4:
+            print("Ce tournoi est déjà terminé\n")
         else:
             print("Erreur inconnue\n")

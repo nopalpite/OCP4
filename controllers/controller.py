@@ -3,9 +3,11 @@ from views.reports import ReportsView
 from views.error import ErrorView
 from views.view import View
 from models.player import Player
+from models.round import Round
+from models.match import Match
 from models.tournament import Tournament
+from controllers.database import Database
 
-ROUND_RANGE = 4
 PLAYERS_RANGE = 8
 
 
@@ -18,6 +20,77 @@ class Controller:
         self.error_view = ErrorView()
         self.players = []
         self.tournaments = []
+        self.db = Database()
+
+    ############################ DATABASE #########################
+
+    def load_players(self):
+        players = self.db.players_table.all()
+        for player in players:
+            self.players.append(Player(**player))
+
+    def load_player(self, id):
+        for player in self.players:
+            if player.id == id:
+                return player
+
+    def load_tournament_players(self, tournament):
+        for player_data in self.db.tournaments_table.get(doc_id=tournament.id)["players"]:
+            for player in self.players:
+                if player.id == player_data["id"]:
+                    player.score = player_data["score"]
+                    player.have_played_with = [self.load_player(id) for id in player_data["have_played_with"]]
+
+    def load_player_pairs(self, ids):
+        output = []
+        paired_players = [self.load_player(id) for id in ids]
+        output.append(paired_players)
+        return output
+
+    def load_match(self, match):
+        return Match(
+            match["id"],
+            [self.load_player(id) for id in match["players"]],
+            match["player1_color"],
+            match["player2_color"],
+            match["player1_score"],
+            match["player2_score"],
+            match["is_complete"]
+        )
+
+    def load_round(self, round, tournament_data):
+        output = Round(
+            round["id"],
+            round["name"],
+            [self.load_player(player["id"]) for player in tournament_data],
+            [[self.load_player(pair[0]), self.load_player(pair[1])] for pair in round["paired_players"]],
+            [self.load_match(match) for match in round["matches"]],
+            round["start_time"],
+            round["end_time"],
+            round["is_complete"],
+            round["is_started"]
+        )
+        return output
+
+    def load_tournaments(self):
+        tournaments = self.db.tournaments_table.all()
+        for tournament_data in tournaments:
+            tournament = Tournament(
+                tournament_data["name"],
+                tournament_data["place"],
+                [self.load_player(player["id"]) for player in tournament_data["players"]],
+                tournament_data["time_control"],
+                tournament_data["rounds_range"],
+                tournament_data["description"],
+                [self.load_round(round, tournament_data["players"]) for round in tournament_data["rounds"]],
+                tournament_data["id"],
+                tournament_data["start_date"],
+                tournament_data["end_date"],
+                tournament_data["is_started"],
+                tournament_data["is_complete"]
+            )
+            self.tournaments.append(tournament)
+
 
     ############################ MENUS ############################
 
@@ -26,11 +99,13 @@ class Controller:
         if choice == "1":
             self.create_tournament()
         elif choice == "2":
-            self.create_new_player()
+            self.create_player()
         elif choice == "3":
             self.load_tournament()
         elif choice == "4":
             self.reports_menu()
+        elif choice == "5":
+            self.update_player_elo()
         elif choice == "q":
             quit()
         else:
@@ -86,44 +161,39 @@ class Controller:
         self.reports_menu()
 
     def rounds_report(self):
-        #TODO afficher uniquement les rounds terminés
         tournament = self.choose_tournament()
         items = [x.__repr__() for x in tournament.rounds]
         self.reports_view.rounds_report(items)
         self.reports_menu()
 
     def matches_report(self):
-        #TODO afficher uniquement les matchs terminés
         tournament = self.choose_tournament()
         round = self.choose_round(tournament)
-        items = [[x.id, x.player1.__str__(), x.player1.score, x.player1.elo, str(),
-                  x.player2.__str__(), x.player2.score, x.player2.elo] for x in round.matches]
+        items = [[match.id, match.player1.__str__(), match.player1_color,match.player1_score, match.player1.elo, str(),
+                  match.player2.__str__(), match.player2_color, match.player2_score, match.player2.elo] for match in round.matches if match.is_complete]
         self.reports_view.matches_report(items)
         self.reports_menu()
 
-
     ############################# SETUP ##########################
 
-    def create_new_player(self):
+    def create_player(self):
         # TODO controller si le joueur n'existe pas déjà
-        # TODO gérer la création de l'ID du joueur
-        data = self.view.create_new_player()
+        data = self.view.create_player()
         player = Player(**data)
+        self.db.append_player(player)
         self.players.append(player)
         self.main_menu()
 
     def create_tournament(self):
-        # TODO controller si le joueur n'existe pas déjà
-        # TODO gérer la création de l'ID du tournoi
         data_tournament = self.view.create_tournament()
         players = []
-        player_id = 1
+        player_index = 1
         while len(players) < PLAYERS_RANGE:
-            data = self.view.add_player(player_id, PLAYERS_RANGE)
+            data = self.view.add_player(player_index, PLAYERS_RANGE)
             for player in self.players:
                 if str(player.id) == data and player not in players:
                     players.append(player)
-                    player_id += 1
+                    player_index += 1
                     self.view.player_added(player)
                     break
             else:
@@ -131,7 +201,7 @@ class Controller:
 
         data_tournament["players"] = players
         tournament = Tournament(**data_tournament)
-        tournament.create_rounds()
+        self.db.append_tournament(tournament)
         self.tournaments.append(tournament)
         while True:
             choice = self.menu_view.play_tournament_menu(tournament)
@@ -144,19 +214,35 @@ class Controller:
             else:
                 self.error_view.display_error(1)
 
+    def update_player_elo(self):
+        player = self.choose_player()
+        new_elo = self.view.update_player_elo()
+        player.elo = int(new_elo)
+        self.db.update_player_elo(player)
+        self.main_menu()
+
     ################ TOURNAMENT #####################
 
     def load_tournament(self):
-        #TODO ne charger que les tournois non terminés
         tournament = self.choose_tournament()
-        self.play_tournament(tournament)
+        if not tournament.is_complete:
+            self.play_tournament(tournament)
+        else:
+            self.error_view.display_error(4)
+            self.main_menu()
 
     def play_tournament(self, tournament):
-        self.view.start_tournament(tournament)
+        self.load_tournament_players(tournament)
+        if not tournament.is_started:
+            tournament.start()
+            print("tournament start")
+        self.view.play_tournament(tournament)
         for round in tournament.rounds:
             if not round.is_complete:
-                round.start()
-                # TODO Tester match_is_complete
+                print(tournament.serialized())
+                if not round.is_started:
+                    round.start()
+                    print("round start")
                 for match in round.matches:
                     if not match.is_complete:
                         choice_available = False
@@ -165,20 +251,29 @@ class Controller:
                             result = self.menu_view.play_match_menu(match.player1, match.player2)
                             if result == str(1):
                                 match.play(1, 0)
+                                self.db.update_tournament_rounds(tournament)
                                 choice_available = True
                             elif result == str(2):
                                 match.play(0, 1)
+                                self.db.update_tournament_rounds(tournament)
                                 choice_available = True
                             elif result == str(3):
                                 match.play(0.5, 0.5)
+                                self.db.update_tournament_rounds(tournament)
                                 choice_available = True
                             elif result == "r":
                                 choice_available = True
                                 self.main_menu()
                             else:
                                 self.error_view.display_error(1)
-
                 round.complete()
+                print("SAUVERGARDE DU TOURNOI")
+                self.db.update_tournament(tournament)
+                print("TOURNOI SAUVEGARDE")
+        tournament.complete()
+        self.db.update_tournament(tournament)
+        print("FIN TOURNOI")
+        self.main_menu()
 
     ##################### CHOOSE #######################
 
@@ -194,7 +289,7 @@ class Controller:
 
     def choose_round(self, tournament):
         while True:
-            round_id= self.view.choose_round()
+            round_id = self.view.choose_round()
             for round in tournament.rounds:
                 if round_id == str(round.id):
                     return round
@@ -202,45 +297,23 @@ class Controller:
             else:
                 self.error_view.display_error(1)
 
+    def choose_player(self):
+        while True:
+            player_id = self.view.choose_player()
+            for player in self.players:
+                if player_id == str(player.id):
+                    return player
+                    break
+            else:
+                self.error_view.display_error(3)
 
     def run(self):
         self.view.display_banner()
         self.main_menu()
 
-######################TESTING SETUP########################################
-
-
-
-
-controller = Controller()
-controller.players = [Player("michel", "gerard", "date_1", "male", 1945),
-                      Player("sylvain", "hervé", "date_2", "male", 1945),
-                      Player("stéphanie", "croison", "date_4", "female", 178),
-                      Player("cindy", "tartuffe", "date_4", "female", 97450),
-                      Player("basile", "mitchell", "date_5", "male", 1945),
-                      Player("nicolas", "bourges", "date_6", "male", 1945),
-                      Player("kevin", "bratin", "date_7", "male", 178),
-                      Player("lisa", "tarpot", "date_8", "female", 97450)]
-id = 1
-for player in controller.players:
-    player.id = id
-    id += 1
-list = []
-for i in controller.players:
-    list.append(i)
-
-controller.tournaments = [Tournament("Super tournoi", "bordeaux", list, "bullet"),
-                          Tournament("Mega tournoi", "paris", controller.players, "bullet")]
-controller.tournaments[0].id = 1
-controller.tournaments[1].id = 2
-controller.tournaments[
-    0].description = "jdflksdjflkdsjlfkjsdlkfjlsdkjflksdjflkjdsl\nfkjdslkjflskdjflkdsjflkjsdlfkjsdlkjfslkjflskjdlksjflksdjflskj"
-
-current_tournament = controller.tournaments[0]
-current_tournament.create_rounds()
-
 
 ################## Lancement du programme ##########################
-
-
+controller = Controller()
+controller.load_players()
+controller.load_tournaments()
 controller.run()

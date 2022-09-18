@@ -28,7 +28,8 @@ class MenuView:
         choices = ["créer un tournoi",
                    "ajouter des joueurs à la base de donnée",
                    "charger un tournoi",
-                   "afficher un rapport"]
+                   "afficher un rapport",
+                   "mettre à jour le classement elo d'un joueur"]
         return self.display_menu(header, choices, True)
 
     def reports_menu(self):
