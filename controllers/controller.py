@@ -163,7 +163,7 @@ class Controller:
     def rounds_report(self):
         tournament = self.choose_tournament()
         items = [x.__repr__() for x in tournament.rounds]
-        self.reports_view.rounds_report(items)
+        self.reports_view.rounds_report(items, tournament)
         self.reports_menu()
 
     def matches_report(self):
@@ -171,7 +171,7 @@ class Controller:
         round = self.choose_round(tournament)
         items = [[match.id, match.player1.__str__(), match.player1_color,match.player1_score, match.player1.elo, str(),
                   match.player2.__str__(), match.player2_color, match.player2_score, match.player2.elo] for match in round.matches if match.is_complete]
-        self.reports_view.matches_report(items)
+        self.reports_view.matches_report(items, tournament, round)
         self.reports_menu()
 
     ############################# SETUP ##########################
@@ -286,6 +286,7 @@ class Controller:
                     break
             else:
                 self.error_view.display_error(2)
+                self.main_menu()
 
     def choose_round(self, tournament):
         while True:
@@ -296,6 +297,7 @@ class Controller:
                     break
             else:
                 self.error_view.display_error(1)
+                self.reports_menu()
 
     def choose_player(self):
         while True:

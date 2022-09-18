@@ -28,14 +28,16 @@ class ReportsView:
                 'Description']
         self.report(rows, tournaments_items)
 
-    def rounds_report(self, rounds_items):
+    def rounds_report(self, rounds_items, tournament):
         rows = ['Round',
                 'Date de début',
                 'Date de fin',
                 'Matchs']
+        print()
+        print(tournament)
         self.report(rows, rounds_items)
 
-    def matches_report(self, matches_items):
+    def matches_report(self, matches_items, tournament, round):
         rows = ['Match',
                 'Joueur 1',
                 'Couleur',
@@ -46,4 +48,7 @@ class ReportsView:
                 'Couleur',
                 'Score',
                 'Elo']
+        print()
+        print(tournament)
+        print(round.name)
         self.report(rows, matches_items)
