@@ -1,13 +1,11 @@
+import pyfiglet
 
 
-BANNER = """ __        ___  __   __     ___  __        __                   ___      ___
-/  ` |__| |__  /__` /__`     |  /  \ |  | |__) |\ |  /\   |\/| |__  |\ |  |
-\__, |  | |___ .__/ .__/     |  \__/ \__/ |  \ | \| /~~\  |  | |___ | \|  |
-                                                                             """
 class View:
 
     def display_banner(self):
-        print(BANNER)
+        ascii_banner = pyfiglet.figlet_format("CHESS TOURNAMENT")
+        print(ascii_banner)
 
     def create_tournament(self):
         print()
@@ -17,7 +15,11 @@ class View:
         time_control = input("entrez le contrôle du temps (Bullet/Blitz/Coup rapide): ")
         description = input("entrez la description du tournoi: ")
         print()
-        return {"name": name.capitalize(), "place": place.capitalize(), "time_control": time_control.capitalize(), "description": description}
+        return {"name": name.capitalize(),
+                "place": place.capitalize(),
+                "time_control": time_control.capitalize(),
+                "description": description
+                }
 
     def create_player(self):
         print("------Nouveau Joueur------")
@@ -27,11 +29,15 @@ class View:
         gender = input("entrez le genre du joueur(H/F): ")
         elo = input("entrez le classement ELO du joueur: ")
         print()
-        return {"first_name": first_name.capitalize(), "last_name": last_name.capitalize(), "birth_date": birth_date, "gender": gender.upper(),
-                "elo": int(elo)}
+        return {"first_name": first_name.capitalize(),
+                "last_name": last_name.capitalize(),
+                "birth_date": birth_date,
+                "gender": gender.upper(),
+                "elo": int(elo)
+                }
 
     def choose_player(self):
-        id = input(f"entrez l'ID du joueur: ")
+        id = input("entrez l'ID du joueur: ")
         return id
 
     def update_player_elo(self):

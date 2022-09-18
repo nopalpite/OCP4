@@ -22,7 +22,6 @@ class MenuView:
         print()
         return choice
 
-
     def main_menu(self):
         header = "menu principal"
         choices = ["créer un tournoi",
@@ -46,15 +45,12 @@ class MenuView:
                    "par classement"]
         return self.display_menu(False, choices, False)
 
-
     def play_tournament_menu(self, tournament):
         print(f"------{tournament}------")
         choices = ["lancer le tournoi"]
         return self.display_menu(False, choices, False)
 
+    def play_match_menu(self, player1, player2):
+        choices = [f"{player1} gagne", f"{player2} gagne", "égalite"]
 
-    def play_match_menu(self,player1, player2):
-        choices = [f"{player1} gagne",
-                   f"{player2} gagne",
-                   "égalité"]
         return self.display_menu(False, choices, False)

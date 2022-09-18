@@ -1,4 +1,4 @@
-from tinydb import TinyDB, Query
+from tinydb import TinyDB
 
 
 class Database:
@@ -26,8 +26,3 @@ class Database:
     def update_tournament_rounds(self, tournament):
         self.tournaments_table.update({'players': tournament.serialized()["players"]}, doc_ids=[tournament.id])
         self.tournaments_table.update({'rounds': tournament.serialized()["rounds"]}, doc_ids=[tournament.id])
-
-    def load_tournament_players(self, tournament):
-        print("HHOOOOOOOOOOOOOOOOOOOOOOOOOO")
-        print(self.tournaments_table.get(doc_id=tournament.id)["players"])
-

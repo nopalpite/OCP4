@@ -20,7 +20,7 @@ class Round:
         return f"{self.name} heure de début: {self.start_time} heure de fin: {self.end_time}"
 
     def __repr__(self):
-        matches =  [match for match in self.matches if match.is_complete]
+        matches = [match for match in self.matches if match.is_complete]
         return self.name, self.start_time, self.end_time, matches
 
     def serialized(self):
@@ -78,7 +78,7 @@ class Round:
         matches = []
         index = 1
         for i in self.paired_players:
-            match = Match(index,i)
+            match = Match(index, i)
             matches.append(match)
             index += 1
         return matches

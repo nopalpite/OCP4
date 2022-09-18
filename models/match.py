@@ -25,7 +25,8 @@ class Match:
                 f"'{self.player2}'[{self.player2_score}]\n"
 
     def __str__(self):
-        return f"{self.player1.last_name} {self.player1.first_name} VS {self.player2.last_name} {self.player2.first_name}"
+        return f"{self.player1.last_name} {self.player1.first_name} VS {self.player2.last_name}" \
+               f" {self.player2.first_name} "
 
     def serialized(self):
         return {'id': self.id,
@@ -51,4 +52,3 @@ class Match:
         self.player1.have_played_with.append(self.player2)
         self.player2.have_played_with.append(self.player1)
         self.is_complete = True
-

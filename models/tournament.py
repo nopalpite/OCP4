@@ -1,6 +1,7 @@
-ROUNDS_RANGE = 4
 from datetime import date
 from models.round import Round
+
+ROUNDS_RANGE = 4
 
 
 class Tournament:
@@ -57,6 +58,3 @@ class Tournament:
     def complete(self):
         self.is_complete = True
         self.end_date = date.today().__str__()
-
-
-
