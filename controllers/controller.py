@@ -309,11 +309,6 @@ class Controller:
 
     def run(self):
         self.view.display_banner()
+        self.load_players()
+        self.load_tournaments()
         self.main_menu()
-
-
-# LANCEMENT DU PROGRAMME #
-controller = Controller()
-controller.load_players()
-controller.load_tournaments()
-controller.run()
