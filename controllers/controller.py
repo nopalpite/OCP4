@@ -6,7 +6,7 @@ from models.player import Player
 from models.round import Round
 from models.match import Match
 from models.tournament import Tournament
-from controllers.database import Database
+from models.database import Database
 
 PLAYERS_RANGE = 8
 
