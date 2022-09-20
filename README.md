@@ -10,7 +10,7 @@ Récupérez le dépot github :
 git clone https://github.com/nopalpite/OCP4.git
 ```
 
-Placez-vous dans le dossier OCP2 et créez un environnement virtuel:
+Placez-vous dans le dossier OCP4 et créez un environnement virtuel:
 
 ```
 python -m venv env
