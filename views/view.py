@@ -2,6 +2,7 @@ import pyfiglet
 
 
 class View:
+    """View class"""
 
     def display_banner(self):
         ascii_banner = pyfiglet.figlet_format("CHESS TOURNAMENT")

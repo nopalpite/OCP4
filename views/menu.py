@@ -1,4 +1,5 @@
 class MenuView:
+    """MenuView class"""
 
     def display_menu(self, header, choices, main: bool):
         if header:

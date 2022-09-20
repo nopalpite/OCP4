@@ -12,6 +12,7 @@ PLAYERS_RANGE = 8
 
 
 class Controller:
+    """Controller class"""
 
     def __init__(self):
         self.view = View()
@@ -241,7 +242,6 @@ class Controller:
         self.view.play_tournament(tournament)
         for round in tournament.rounds:
             if not round.is_complete:
-                print(tournament.serialized())
                 if not round.is_started:
                     round.start()
                 for match in round.matches:

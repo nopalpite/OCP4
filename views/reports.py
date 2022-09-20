@@ -2,6 +2,7 @@ from tabulate import tabulate
 
 
 class ReportsView:
+    """ReportView class"""
 
     def report(self, rows, items):
         table = [rows]

@@ -1,4 +1,5 @@
 class Player:
+    """Player class"""
 
     def __init__(self, first_name, last_name, birth_date, gender, elo, id=0, score=0, have_played_with=[]):
         self.id = id

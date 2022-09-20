@@ -2,6 +2,7 @@ from tinydb import TinyDB
 
 
 class Database:
+    """Database class"""
 
     def __init__(self):
         self.db = TinyDB('database.json')

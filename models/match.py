@@ -2,6 +2,7 @@ from random import shuffle
 
 
 class Match:
+    """Match class"""
 
     def __init__(self,
                  id,

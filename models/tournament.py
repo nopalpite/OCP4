@@ -5,6 +5,7 @@ ROUNDS_RANGE = 4
 
 
 class Tournament:
+    """Tournament class"""
 
     def __init__(self, name, place, players, time_control, rounds_range=ROUNDS_RANGE, description="",
                  rounds=[], id=0, start_date="Pas encore commencé", end_date="Pas encore terminé",

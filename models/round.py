@@ -3,6 +3,7 @@ from models.match import Match
 
 
 class Round:
+    """Round class"""
 
     def __init__(self, id, name, players, paired_players=[], matches=[], start_time="pas encore commencé",
                  end_time="pas encore terminé", is_complete=False, is_started=False):

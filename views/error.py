@@ -1,4 +1,5 @@
 class ErrorView:
+    """ErrorView class"""
 
     def display_error(self, error):
         if error == 0:
