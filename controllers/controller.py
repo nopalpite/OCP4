@@ -202,9 +202,11 @@ class Controller:
                     break
             else:
                 self.error_view.display_error(0)
-
         data_tournament["players"] = players
         tournament = Tournament(**data_tournament)
+        for player in tournament.players:
+            player.score = 0
+            player.have_played_with = []
         self.db.append_tournament(tournament)
         self.tournaments.append(tournament)
         while True:
@@ -239,11 +241,13 @@ class Controller:
         self.load_tournament_players(tournament)
         if not tournament.is_started:
             tournament.start()
+            self.db.update_tournament(tournament)
         self.view.play_tournament(tournament)
         for round in tournament.rounds:
             if not round.is_complete:
                 if not round.is_started:
                     round.start()
+                    self.db.update_tournament_rounds(tournament)
                 for match in round.matches:
                     if not match.is_complete:
                         choice_available = False
